@@ -1,13 +1,22 @@
-# Mini project: Làm sạch và đối soát giao dịch bằng Spark SQL
+# Wallet Transaction Pipeline
 
-Bài tập cá nhân dùng dữ liệu giả lập, thiết kế để vừa học lý thuyết vừa tự viết SQL.
-Mục tiêu đầu tiên: biến 12 bản ghi nguồn thành dữ liệu giao dịch đúng và bảng tổng hợp theo ngày.
+Dự án học Data Engineering trên dữ liệu ví điện tử giả lập. Mục tiêu của MVP là lấy giao dịch thay đổi theo lô từ PostgreSQL, cập nhật trạng thái mới nhất và tính lại báo cáo theo **ngày phát sinh giao dịch**.
 
-Khung đọc dữ liệu, tạo SparkSession và kiểm tra đã có sẵn. Ba file `sql/*.sql` là bài tập còn để trống có chủ ý. Bạn tự hoàn thành từng file; chạy kiểm tra ngay từ bản đầu sẽ báo chưa đạt là bình thường.
+| Phần | Trạng thái |
+| --- | --- |
+| Lab CSV 12 dòng | Có sẵn Docker Compose, dữ liệu, khung PySpark và lệnh kiểm tra. Ba truy vấn SQL là bài tập để tự hoàn thành. |
+| Pipeline MVP | Đã lên kế hoạch: PostgreSQL → Pentaho → staging → Spark SQL → báo cáo ngày. Airflow sẽ điều phối theo ngày. |
+| Mở rộng | PaySim để đo hiệu năng Spark; bảng cảnh báo fraud để thử và đánh giá quy tắc. |
+
+**Ca demo MVP.** Giao dịch TX004 trị giá 70.000đ phát sinh ngày 1 và chuyển từ PENDING sang SUCCESS ngày 2. Lô ngày 2 phải cập nhật báo cáo **ngày 1**. Chạy lại lô ngày 2 vẫn chỉ tính TX004 một lần. Ca này dùng dữ liệu PostgreSQL riêng; fixture CSV hiện tại chứa hai trạng thái của TX004 trong cùng ngày.
+
+- [Kế hoạch MVP hai tuần](docs/ROADMAP.md) — thứ tự làm, việc tự thực hành và tiêu chí đạt.
+- [Kiến trúc và hợp đồng dữ liệu](docs/ARCHITECTURE.md) — vai trò từng bước, hai mốc thời gian và cách chạy lại.
+- [Hướng dẫn lab Spark SQL](HUONG_DAN.md), [hồ sơ học tập](TIEN_DO.md) và [phạm vi đã kiểm chứng](KIEM_CHUNG.md).
 
 ## Bắt đầu trong một buổi
 
-1. Giải nén, mở terminal tại thư mục có `compose.yaml`.
+1. Clone repo hoặc tải ZIP từ GitHub, rồi mở terminal tại thư mục có `compose.yaml`.
 2. Mở Docker Desktop/engine và chạy:
 
 ```bash
@@ -47,7 +56,7 @@ Không cần cài lại Spark nếu môi trường hiện tại đã dùng đư�
 | 3 | Tổng hợp có điều kiện, quy tắc nghiệp vụ, đối soát | Tính số giao dịch và số tiền thành công theo ngày | `check 3` |
 | 4 | Idempotency, chạy theo ngày, lỗi trước bước ghi | Chạy lại, so sánh file, giải thích cơ chế khung có sẵn | `check 4` |
 
-Gợi ý nhịp học: mỗi bài 1–2 buổi, mỗi buổi 45–90 phút nếu bạn đã dùng SQL cơ bản. Tốc độ được điều chỉnh theo bài làm, không theo số buổi cố định.
+Dùng bảng này để ôn nhanh các khái niệm cần cho MVP. Nếu đã làm được một bài, chạy lệnh kiểm tra và giải thích kết quả trước khi sang bước kế tiếp.
 
 ## Các lệnh tiếp theo
 
@@ -65,10 +74,6 @@ docker compose run --rm lab check 4
 Tự dự đoán kết quả, viết SQL, chạy kiểm tra rồi mới nhờ giải thích lỗi. Khi gửi bài, gửi câu SQL, kết quả/lỗi và điều bạn đang hiểu. Nếu vướng, yêu cầu gợi ý từng mức trước khi xem lời giải hoàn chỉnh.
 
 Mẫu gửi: “Tôi đang học mini lab giao dịch, Bài 1. Đây là SQL của tôi: ... Tôi nghĩ kết quả phải là ... nhưng đang nhận ... Hãy chỉ ra chỗ sai và cho một gợi ý trước.”
-
-## Sau bản nhỏ này
-
-Khi làm độc lập bốn bài: dùng Pentaho để đưa CSV/API vào staging, Airflow để gọi pipeline theo ngày, rồi Rundeck để cung cấp thao tác chạy bù. Kubernetes/Flink là phần mở rộng sau; gói hiện tại chỉ chứa Spark SQL và khung kiểm tra.
 
 ## Tài liệu gốc và kiểm chứng
 
