@@ -1,0 +1,22 @@
+services:
+  lab:
+    image: spark:3.5.0-scala2.12-java11-python3-ubuntu
+    user: "${LAB_UID:-1000}:${LAB_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      SPARK_LOCAL_IP: 127.0.0.1
+      SPARK_USER: lab
+      PYSPARK_PYTHON: python3
+      PYTHONIOENCODING: utf-8
+    volumes:
+      - .:/workspace
+    entrypoint:
+      - /opt/spark/bin/spark-submit
+      - --master
+      - local[2]
+      - --driver-memory
+      - 1g
+      - /workspace/src/lab.py
+    command: [preview]
+    mem_limit: 2g
+    cpus: 2.0
