@@ -27,6 +27,10 @@ Mỗi lesson gồm 4–6 micro-lesson có thao tác và tiêu chí tự kiểm t
 | 9 · Chẩn đoán và hiệu năng | Mô phỏng hai sự cố: thiếu sao kê và đối tác gửi lại file. Viết runbook để xác định lô, khoanh vùng task và khôi phục. Đo join lịch sử merchant trên cùng input trước và sau một thay đổi, lưu `explain`, số file và số liệu shuffle. | Thiếu file khiến bước đối soát báo lỗi và giữ kết quả đã công bố. File gửi lại không tăng doanh số. Trình bày vì sao số dòng sau join đúng; nếu thay đổi không nhanh hơn, giải thích bằng số đo. [Spark SQL performance](https://spark.apache.org/docs/3.5.0/sql-performance-tuning.html) |
 | 10 · Bàn giao như một ticket thực tế | Nhận ticket mở đầu, chạy pipeline, tạo bản sửa trên branch, viết pull request có cách tái hiện và kiểm chứng. Bàn giao sơ đồ, lệnh chạy, định nghĩa doanh số, runbook, một báo cáo sự cố và demo 5 phút. | Một người đọc README có thể dựng lab, lần theo P02 từ nguồn đến báo cáo và chạy lại một ngày. Bạn giải thích được nguyên nhân, phạm vi ảnh hưởng và bằng chứng phục hồi mà không cần xem bài giải. |
 
+## Thực hành với PaySim
+
+[Lộ trình PaySim](PAYSIM_LAB.md) dùng file Kaggle có 6.362.620 dòng. Sau bài 1.3, có thể mở file trong Spoon để tập đọc một nguồn CSV. Áp dụng phần SQL và Spark ở các bài 4–6 để kiểm tra kiểu dữ liệu, phân lô theo giờ mô phỏng, đọc lại Parquet và đo hiệu năng bằng cùng một truy vấn.
+
 ## Ba quyết định kỹ thuật cần tự giải thích
 
 1. **Nơi chạy tác vụ.** Spoon hiện dùng địa chỉ loopback trên Windows. Khi chạy từ container cùng mạng Compose, dùng PostgreSQL tại `postgres:5432`, NameNode tại `hdfs://namenode:8020` và Hadoop client kết nối DataNode theo IP nội bộ (`dfs.client.use.datanode.hostname=false`). Đặt driver và cấu hình kết nối trên node thực thi. Kiểm tra từ chính node đó bằng một lần ghi và đọc lại. [Kiến trúc và cấu hình hiện tại](ARCHITECTURE.md)

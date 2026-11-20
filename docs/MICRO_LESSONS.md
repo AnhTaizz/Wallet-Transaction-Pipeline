@@ -2,6 +2,8 @@
 
 Mỗi dòng là một micro-lesson. Đọc cột cuối, dự đoán kết quả rồi mới thao tác. Dành khoảng 20–40 phút cho một dòng, lâu hơn nếu cần cài công cụ. Có thể dừng ở bất kỳ dòng nào và ghi mã bài cùng bằng chứng vào [nhật ký](../TIEN_DO.md). Mục tiêu cuối mỗi lesson nằm trong [lộ trình](ROADMAP.md).
 
+Với bộ dữ liệu Kaggle, xem [sáu buổi thực hành PaySim](PAYSIM_LAB.md). Các bài bên dưới dùng các bộ dữ liệu mẫu của repo.
+
 ## 1 · Lần đầu dùng Spoon
 
 Dùng PostgreSQL 5 giao dịch và [hướng dẫn kết nối](INGESTION_LAB.md).

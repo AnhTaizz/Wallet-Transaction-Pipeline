@@ -9,7 +9,7 @@ Dự án thực hành công việc của Junior Data Engineer trên dữ liệu 
 | Capstone đối soát | Có [nguồn PostgreSQL gồm 60.311 lượt giao sự kiện, lịch sử merchant và sao kê đối tác](data/capstone/README.md), kèm số liệu chuẩn để tự kiểm tra. |
 | Bash, Rundeck và Airflow | Bài 3, 7 và 8 hướng dẫn thiết kế script, job vận hành và DAG. Người học triển khai các phần này. |
 | Pipeline báo cáo | Đã lên kế hoạch dùng snapshot HDFS làm đầu vào cho Spark SQL, sau đó điều phối theo ngày bằng Airflow. |
-| Mở rộng | PaySim để đo hiệu năng Spark; bảng cảnh báo fraud để thử và đánh giá quy tắc. |
+| PaySim | [Sáu buổi thực hành](docs/PAYSIM_LAB.md) trên CSV tải từ Kaggle. Đọc dữ liệu trong Spoon, tổng hợp và kiểm tra nhãn bằng Spark, rồi đo cùng một truy vấn trên CSV và Parquet. |
 
 **Ca demo MVP.** Giao dịch TX004 trị giá 70.000đ phát sinh ngày 1 và chuyển từ PENDING sang SUCCESS ngày 2. Lô ngày 2 phải cập nhật báo cáo **ngày 1**. Chạy lại lô ngày 2 vẫn chỉ tính TX004 một lần. Ca này dùng dữ liệu PostgreSQL riêng; fixture CSV hiện tại chứa hai trạng thái của TX004 trong cùng ngày.
 
