@@ -20,3 +20,82 @@ services:
     command: [preview]
     mem_limit: 2g
     cpus: 2.0
+
+  postgres:
+    image: postgres:18
+    profiles: [ingest]
+    environment:
+      POSTGRES_DB: wallet_lab
+      POSTGRES_USER: wallet
+      POSTGRES_PASSWORD: wallet_lab
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - wallet_postgres:/var/lib/postgresql
+      - ./sql/source/01_transactions.sql:/docker-entrypoint-initdb.d/01_transactions.sql:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  namenode:
+    image: apache/hadoop:3.4.3
+    profiles: [ingest]
+    environment:
+      CORE-SITE.XML_fs.defaultFS: hdfs://namenode:8020
+      HDFS-SITE.XML_dfs.namenode.name.dir: file:///hdfs/name
+      HDFS-SITE.XML_dfs.namenode.safemode.extension: "0"
+      HDFS-SITE.XML_dfs.replication: "1"
+    command:
+      - bash
+      - -ec
+      - |
+        sudo chown hadoop /hdfs
+        if [ ! -f /hdfs/name/current/VERSION ]; then
+          hdfs namenode -format -nonInteractive
+        fi
+        exec hdfs namenode
+    ports:
+      - "127.0.0.1:18020:8020"
+      - "127.0.0.1:19870:9870"
+    volumes:
+      - wallet_namenode:/hdfs
+    healthcheck:
+      test: [CMD, hdfs, dfs, -test, -d, /]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  datanode:
+    image: apache/hadoop:3.4.3
+    profiles: [ingest]
+    depends_on:
+      namenode:
+        condition: service_healthy
+    environment:
+      CORE-SITE.XML_fs.defaultFS: hdfs://namenode:8020
+      HDFS-SITE.XML_dfs.datanode.data.dir: file:///hdfs/data
+      # Spoon uses the advertised hostname and data port from the Windows host.
+      HDFS-SITE.XML_dfs.datanode.hostname: "127.0.0.1"
+      HDFS-SITE.XML_dfs.datanode.address: "0.0.0.0:19866"
+    command:
+      - bash
+      - -ec
+      - |
+        sudo chown hadoop /hdfs
+        exec hdfs datanode
+    ports:
+      - "127.0.0.1:19866:19866"
+    volumes:
+      - wallet_datanode:/hdfs
+    healthcheck:
+      test: [CMD-SHELL, 'hdfs dfsadmin -report -live | grep -Fx "Live datanodes (1):"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  wallet_postgres:
+  wallet_namenode:
+  wallet_datanode:

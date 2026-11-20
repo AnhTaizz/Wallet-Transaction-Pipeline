@@ -1,20 +1,28 @@
 # Wallet Transaction Pipeline
 
-Dự án học Data Engineering trên dữ liệu ví điện tử giả lập. Mục tiêu của MVP là lấy giao dịch thay đổi theo lô từ PostgreSQL, cập nhật trạng thái mới nhất và tính lại báo cáo theo **ngày phát sinh giao dịch**.
+Dự án thực hành công việc của Junior Data Engineer trên dữ liệu ví điện tử giả lập. Bạn bắt đầu bằng cách **tự dùng Spoon đọc 5 giao dịch từ PostgreSQL và ghi lên HDFS**. Qua [10 bài thực hành](docs/ROADMAP.md), bạn xây pipeline đối soát, vận hành bằng Bash, Rundeck và Airflow, rồi xử lý một ticket lệch doanh số.
 
 | Phần | Trạng thái |
 | --- | --- |
+| Lab PostgreSQL → Spoon → HDFS | Có Compose cho PostgreSQL mẫu và HDFS một NameNode, một DataNode. Người học tạo transformation trong Spoon trên máy. |
 | Lab CSV 12 dòng | Có sẵn Docker Compose, dữ liệu, khung PySpark và lệnh kiểm tra. Ba truy vấn SQL là bài tập để tự hoàn thành. |
-| Pipeline MVP | Đã lên kế hoạch: PostgreSQL → Pentaho → staging → Spark SQL → báo cáo ngày. Airflow sẽ điều phối theo ngày. |
+| Capstone đối soát | Có [nguồn PostgreSQL gồm 60.311 lượt giao sự kiện, lịch sử merchant và sao kê đối tác](data/capstone/README.md), kèm số liệu chuẩn để tự kiểm tra. |
+| Bash, Rundeck và Airflow | Bài 3, 7 và 8 hướng dẫn thiết kế script, job vận hành và DAG. Người học triển khai các phần này. |
+| Pipeline báo cáo | Đã lên kế hoạch dùng snapshot HDFS làm đầu vào cho Spark SQL, sau đó điều phối theo ngày bằng Airflow. |
 | Mở rộng | PaySim để đo hiệu năng Spark; bảng cảnh báo fraud để thử và đánh giá quy tắc. |
 
 **Ca demo MVP.** Giao dịch TX004 trị giá 70.000đ phát sinh ngày 1 và chuyển từ PENDING sang SUCCESS ngày 2. Lô ngày 2 phải cập nhật báo cáo **ngày 1**. Chạy lại lô ngày 2 vẫn chỉ tính TX004 một lần. Ca này dùng dữ liệu PostgreSQL riêng; fixture CSV hiện tại chứa hai trạng thái của TX004 trong cùng ngày.
 
-- [Kế hoạch MVP hai tuần](docs/ROADMAP.md) — thứ tự làm, việc tự thực hành và tiêu chí đạt.
+- [Thực hành PostgreSQL → Spoon → HDFS](docs/INGESTION_LAB.md) — cách chạy DB mẫu, cấu hình kết nối và đối chiếu file trên HDFS.
+- [Lộ trình học](docs/ROADMAP.md) — thứ tự làm, việc tự thực hành và tiêu chí đạt.
 - [Kiến trúc và hợp đồng dữ liệu](docs/ARCHITECTURE.md) — vai trò từng bước, hai mốc thời gian và cách chạy lại.
 - [Hướng dẫn lab Spark SQL](HUONG_DAN.md), [hồ sơ học tập](TIEN_DO.md) và [phạm vi đã kiểm chứng](KIEM_CHUNG.md).
 
-## Bắt đầu trong một buổi
+## Bắt đầu với Spoon
+
+Mở Docker Desktop rồi chạy `docker compose --profile ingest up -d --wait postgres datanode` để khởi động nguồn mẫu và HDFS. Cài hoặc mở Spoon trên Windows, rồi làm theo [hướng dẫn thực hành](docs/INGESTION_LAB.md).
+
+## Bắt đầu với lab Spark SQL
 
 1. Clone repo hoặc tải ZIP từ GitHub, rồi mở terminal tại thư mục có `compose.yaml`.
 2. Mở Docker Desktop/engine và chạy:

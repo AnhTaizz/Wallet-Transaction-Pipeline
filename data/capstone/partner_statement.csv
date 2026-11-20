@@ -1,0 +1,6 @@
+statement_line_id,merchant_id,transaction_id,settled_amount_vnd
+S01,M-PILOT,P01,100000
+S02,M-PILOT,P02,70000
+S03,M-PILOT,P04,49000
+S04,M-PILOT,P06,30000
+S05,M-PILOT,P99,5000

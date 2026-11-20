@@ -1,14 +1,16 @@
 # Kiến trúc MVP
 
-Thiết kế cho pipeline chạy theo lô trên máy cá nhân. Quy ước dưới đây là mục tiêu triển khai. [Lab CSV hiện có](../README.md) đọc 12 dòng và có bộ kiểm tra riêng.
+Thiết kế cho pipeline chạy theo lô. [Bài thực hành đầu tiên](INGESTION_LAB.md) đi từ PostgreSQL qua Spoon đến HDFS. Spark và Airflow là các mốc sau. [Lab CSV hiện có](../README.md#bắt-đầu-với-lab-spark-sql) đọc 12 dòng và có bộ kiểm tra riêng.
 
 ```mermaid
 flowchart LR
     pg["PostgreSQL nguồn"] --> pdi["Pentaho"]
-    pdi --> stage["Snapshot từng lô"]
+    rundeck["Rundeck · chạy thủ công"] -.-> bash["Bash / Kitchen"]
+    bash -.-> pdi
+    pdi --> stage["Snapshot từng lô trên HDFS"]
     stage --> spark["Xử lý và tổng hợp"]
     spark --> report["Báo cáo theo ngày"]
-    airflow["Airflow"] -.->|Khoảng chạy và thứ tự bước| pdi
+    airflow["Airflow"] -.->|Khoảng chạy và thứ tự bước| bash
     airflow -.->|Thứ tự bước| spark
 ```
 
@@ -16,10 +18,12 @@ flowchart LR
 | --- | --- |
 | PostgreSQL nguồn | Bảng giao dịch giả lập, một dòng mỗi `transaction_id`. Giữ `event_ts` cố định. Một thay đổi trạng thái phải có `updated_at` mới hơn phiên bản trước của giao dịch đó. |
 | Pentaho | Dùng Table Input đọc theo khoảng `updated_at >= start` và `updated_at < end`. Lưu dữ liệu đã đọc theo khoảng chạy, kèm số dòng. |
-| Staging | Công bố snapshot của lô sau khi ghi xong. Một lần phát lại dùng snapshot đã công bố. Một lô rỗng cũng có dấu hiệu hoàn thành rõ ràng để phân biệt với lỗi đọc nguồn. |
+| Staging HDFS | Lưu file theo khoảng lô. Khi ghép pipeline báo cáo, chỉ công bố snapshot sau khi ghi xong. Một lần phát lại dùng snapshot đã công bố. Một lô rỗng cũng có dấu hiệu hoàn thành rõ ràng để phân biệt với lỗi đọc nguồn. |
 | Xử lý | Cập nhật bảng trạng thái dựa vào `transaction_id` và phiên bản mới hơn. Xác định ngày cần tính lại từ `event_ts` của các dòng staging, rồi tổng hợp từ **toàn bộ bảng trạng thái** cho các ngày đó. Dùng Spark SQL cho phần tổng hợp. |
 | Báo cáo | Mỗi ngày có một kết quả chứa tổng số giao dịch, số thành công và tổng tiền thành công (VND). Ghi thay thế kết quả của từng ngày sau khi tính xong. |
 | Airflow | Truyền cùng khoảng chạy xuống các bước. Retry hoặc chạy bù theo khoảng rõ ràng. Ghi vào log khoảng đọc, số dòng và các ngày đã công bố. |
+
+Trong capstone, view nguồn lưu từng lần giao sự kiện. Chọn lô theo `received_at`, lấy bản mới nhất theo `version` và xác định ngày báo cáo theo `event_ts`. Hai CSV bổ sung cung cấp lịch sử phân hạng merchant và sao kê đối tác. Job Spark tạo bảng trạng thái, báo cáo doanh số và kết quả đối soát. [Hợp đồng và số liệu đối chiếu](../data/capstone/README.md)
 
 ## Hai mốc thời gian
 
